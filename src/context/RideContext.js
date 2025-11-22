@@ -6,24 +6,24 @@ const MOCK_RIDES = [
     {
         id: '1',
         driver: { name: 'Alice Smith', rating: 4.8, avatar: 'https://i.pravatar.cc/150?u=alice' },
-        origin: 'Downtown',
-        destination: 'Airport',
-        originCoords: { latitude: 37.78825, longitude: -122.4324 },
-        destinationCoords: { latitude: 37.6213, longitude: -122.3790 },
+        origin: 'Hitech City',
+        destination: 'Gachibowli',
+        originCoords: { latitude: 17.4435, longitude: 78.3772 },
+        destinationCoords: { latitude: 17.4401, longitude: 78.3489 },
         date: '2023-11-25',
         time: '08:00 AM',
         price: 15,
         seats: 3,
         availableSeats: 2,
-        description: 'Leaving from Main St. Starbucks. Non-smoking.',
+        description: 'Leaving from Cyber Towers. Non-smoking.',
     },
     {
         id: '2',
         driver: { name: 'Bob Jones', rating: 4.5, avatar: 'https://i.pravatar.cc/150?u=bob' },
-        origin: 'University',
-        destination: 'Tech Park',
-        originCoords: { latitude: 37.8715, longitude: -122.2730 },
-        destinationCoords: { latitude: 37.4419, longitude: -122.1430 },
+        origin: 'Kondapur',
+        destination: 'Financial District',
+        originCoords: { latitude: 17.4622, longitude: 78.3568 },
+        destinationCoords: { latitude: 17.4105, longitude: 78.3378 },
         date: '2023-11-25',
         time: '09:30 AM',
         price: 10,
@@ -34,10 +34,10 @@ const MOCK_RIDES = [
     {
         id: '3',
         driver: { name: 'Charlie Brown', rating: 4.9, avatar: 'https://i.pravatar.cc/150?u=charlie' },
-        origin: 'Suburbia',
-        destination: 'Downtown',
-        originCoords: { latitude: 37.7749, longitude: -122.4194 },
-        destinationCoords: { latitude: 37.78825, longitude: -122.4324 },
+        origin: 'Jubilee Hills',
+        destination: 'Banjara Hills',
+        originCoords: { latitude: 17.4326, longitude: 78.4071 },
+        destinationCoords: { latitude: 17.4138, longitude: 78.4398 },
         date: '2023-11-26',
         time: '07:15 AM',
         price: 12,
@@ -86,9 +86,9 @@ export const RideProvider = ({ children }) => {
             id: Date.now().toString(),
             availableSeats: newRide.seats,
             driver: { name: 'Me', rating: 5.0, avatar: 'https://i.pravatar.cc/150?u=me' }, // Mock current user as driver
-            // Default coords for posted rides (mock)
-            originCoords: { latitude: 37.7749, longitude: -122.4194 },
-            destinationCoords: { latitude: 37.78825, longitude: -122.4324 },
+            // Default coords for posted rides (mock) - Hyderabad Center
+            originCoords: newRide.originCoords || { latitude: 17.3850, longitude: 78.4867 },
+            destinationCoords: newRide.destinationCoords || { latitude: 17.4401, longitude: 78.3489 },
         };
         setRides([ride, ...rides]);
         setMyPostedRides([ride, ...myPostedRides]);

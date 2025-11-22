@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Dimensions, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { COLORS } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,25 +30,29 @@ const TrackingScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         if (isDriver && isRideActive) {
-            // Simulate movement for driver
-            let progress = 0;
-            simulationRef.current = setInterval(() => {
-                progress += 0.01;
-                if (progress > 1) {
-                    clearInterval(simulationRef.current);
-                    return;
+            // Real-time tracking using device location
+            const startTracking = async () => {
+                const { getCurrentLocation } = require('../services/LocationService');
+
+                // Initial location
+                const location = await getCurrentLocation();
+                if (location) {
+                    updateRideLocation(location);
                 }
 
-                const latDiff = ride.destinationCoords.latitude - ride.originCoords.latitude;
-                const lngDiff = ride.destinationCoords.longitude - ride.originCoords.longitude;
+                // Poll for updates (simple implementation for demo)
+                // In production, use Location.watchPositionAsync
+                simulationRef.current = setInterval(async () => {
+                    const newLoc = await getCurrentLocation();
+                    if (newLoc) {
+                        updateRideLocation(newLoc);
+                        // Calculate ETA based on distance to destination (mock calculation)
+                        // setEta(...) 
+                    }
+                }, 5000); // Update every 5 seconds
+            };
 
-                const newLat = ride.originCoords.latitude + (latDiff * progress);
-                const newLng = ride.originCoords.longitude + (lngDiff * progress);
-
-                updateRideLocation({ latitude: newLat, longitude: newLng });
-                setEta(Math.max(0, 15 * (1 - progress)));
-
-            }, 1000);
+            startTracking();
         }
 
         return () => {
@@ -76,10 +81,10 @@ const TrackingScreen = ({ route, navigation }) => {
                 ref={mapRef}
                 style={styles.map}
                 initialRegion={{
-                    latitude: (ride.originCoords.latitude + ride.destinationCoords.latitude) / 2,
-                    longitude: (ride.originCoords.longitude + ride.destinationCoords.longitude) / 2,
-                    latitudeDelta: Math.abs(ride.originCoords.latitude - ride.destinationCoords.latitude) * 1.5,
-                    longitudeDelta: Math.abs(ride.originCoords.longitude - ride.destinationCoords.longitude) * 1.5,
+                    latitude: ride.originCoords ? (ride.originCoords.latitude + ride.destinationCoords.latitude) / 2 : 17.3850,
+                    longitude: ride.originCoords ? (ride.originCoords.longitude + ride.destinationCoords.longitude) / 2 : 78.4867,
+                    latitudeDelta: ride.originCoords ? Math.abs(ride.originCoords.latitude - ride.destinationCoords.latitude) * 1.5 : 0.1,
+                    longitudeDelta: ride.originCoords ? Math.abs(ride.originCoords.longitude - ride.destinationCoords.longitude) * 1.5 : 0.1,
                 }}
             >
                 <Marker coordinate={ride.originCoords} title="Origin" pinColor={COLORS.primary} />
@@ -101,7 +106,7 @@ const TrackingScreen = ({ route, navigation }) => {
                 />
             </MapView>
 
-            <SafeAreaView style={styles.overlay}>
+            <SafeAreaView style={styles.overlay} edges={['top', 'left', 'right']}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.black} />
                 </TouchableOpacity>
