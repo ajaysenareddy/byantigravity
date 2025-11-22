@@ -52,6 +52,8 @@ export const RideProvider = ({ children }) => {
     const [myBookings, setMyBookings] = useState([]);
     const [myPostedRides, setMyPostedRides] = useState([]);
 
+    const [activeRide, setActiveRide] = useState(null); // { id, status: 'scheduled' | 'in_progress' | 'completed', currentLocation }
+
     const searchRides = (query) => {
         if (!query) return rides;
         const lowerQuery = query.toLowerCase();
@@ -92,8 +94,44 @@ export const RideProvider = ({ children }) => {
         setMyPostedRides([ride, ...myPostedRides]);
     };
 
+    const startRide = (rideId) => {
+        const ride = rides.find(r => r.id === rideId);
+        if (ride) {
+            setActiveRide({
+                id: rideId,
+                status: 'in_progress',
+                currentLocation: ride.originCoords,
+            });
+        }
+    };
+
+    const updateRideLocation = (location) => {
+        if (activeRide) {
+            setActiveRide(prev => ({ ...prev, currentLocation: location }));
+        }
+    };
+
+    const completeRide = () => {
+        if (activeRide) {
+            setActiveRide(prev => ({ ...prev, status: 'completed' }));
+            // Optional: Clear active ride after some time or immediately
+            setTimeout(() => setActiveRide(null), 3000);
+        }
+    };
+
     return (
-        <RideContext.Provider value={{ rides, searchRides, bookRide, postRide, myBookings, myPostedRides }}>
+        <RideContext.Provider value={{
+            rides,
+            searchRides,
+            bookRide,
+            postRide,
+            myBookings,
+            myPostedRides,
+            activeRide,
+            startRide,
+            updateRideLocation,
+            completeRide
+        }}>
             {children}
         </RideContext.Provider>
     );

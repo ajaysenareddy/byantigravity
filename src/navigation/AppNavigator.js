@@ -26,14 +26,7 @@ const AuthStack = () => (
     </Stack.Navigator>
 );
 
-const HomeStack = () => (
-    <Stack.Navigator>
-        <Stack.Screen name="HomeMain" component={HomeScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="RideDetails" component={RideDetailsScreen} options={{ title: 'Ride Details' }} />
-        <Stack.Screen name="PostRide" component={PostRideScreen} options={{ title: 'Post a Ride' }} />
-        <Stack.Screen name="Tracking" component={TrackingScreen} options={{ headerShown: false }} />
-    </Stack.Navigator>
-);
+
 
 const AppTabs = () => (
     <Tab.Navigator
@@ -56,10 +49,19 @@ const AppTabs = () => (
             headerShown: false,
         })}
     >
-        <Tab.Screen name="Home" component={HomeStack} />
+        <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="MyRides" component={MyRidesScreen} options={{ title: 'My Rides' }} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
+);
+
+const MainNavigator = () => (
+    <Stack.Navigator>
+        <Stack.Screen name="MainTabs" component={AppTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="RideDetails" component={RideDetailsScreen} options={{ title: 'Ride Details' }} />
+        <Stack.Screen name="PostRide" component={PostRideScreen} options={{ title: 'Post a Ride' }} />
+        <Stack.Screen name="Tracking" component={TrackingScreen} options={{ headerShown: false }} />
+    </Stack.Navigator>
 );
 
 const AppNavigator = () => {
@@ -67,7 +69,7 @@ const AppNavigator = () => {
 
     return (
         <NavigationContainer>
-            {user ? <AppTabs /> : <AuthStack />}
+            {user ? <MainNavigator /> : <AuthStack />}
         </NavigationContainer>
     );
 };

@@ -1,14 +1,19 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { useRides } from '../context/RideContext';
+import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const RideDetailsScreen = ({ route, navigation }) => {
   const { rideId } = route.params;
-  const { rides, bookRide, myBookings } = useRides();
+  const { rides, bookRide, myBookings, myPostedRides } = useRides();
+  const auth = useAuth();
+  const userMode = auth?.userMode || 'rider';
+
   const ride = rides.find((r) => r.id === rideId);
   const isBooked = myBookings.some(booking => booking.id === rideId);
+  const isDriverOwner = userMode === 'driver' && myPostedRides.some(r => r.id === rideId);
 
 
 
@@ -98,10 +103,17 @@ const RideDetailsScreen = ({ route, navigation }) => {
       </ScrollView>
 
       <View style={styles.footer}>
-        {isBooked ? (
+        {isDriverOwner ? (
           <TouchableOpacity
             style={styles.trackButton}
-            onPress={() => navigation.navigate('LiveTracking', { rideId: ride.id })}
+            onPress={() => navigation.navigate('Tracking', { rideId: ride.id })}
+          >
+            <Text style={styles.trackButtonText}>Start Ride</Text>
+          </TouchableOpacity>
+        ) : isBooked ? (
+          <TouchableOpacity
+            style={styles.trackButton}
+            onPress={() => navigation.navigate('Tracking', { rideId: ride.id })}
           >
             <Text style={styles.trackButtonText}>Track Ride Live</Text>
           </TouchableOpacity>

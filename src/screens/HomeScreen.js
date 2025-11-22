@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useRides } from '../context/RideContext';
+import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = ({ navigation }) => {
     const { searchRides } = useRides();
+    const { userMode, toggleUserMode } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const rides = searchRides(searchQuery);
 
@@ -48,39 +50,76 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
     );
 
+    const renderDriverDashboard = () => (
+        <View style={styles.driverDashboard}>
+            <View style={styles.dashboardCard}>
+                <Ionicons name="car-sport" size={48} color={COLORS.primary} />
+                <Text style={styles.dashboardTitle}>Ready to drive?</Text>
+                <Text style={styles.dashboardSubtitle}>Share your ride and earn money.</Text>
+                <TouchableOpacity
+                    style={styles.postRideButton}
+                    onPress={() => navigation.navigate('PostRide')}
+                >
+                    <Text style={styles.postRideButtonText}>Post a Ride</Text>
+                </TouchableOpacity>
+            </View>
+
+            <Text style={styles.sectionTitle}>My Posted Rides</Text>
+            {/* Placeholder for posted rides list */}
+            <View style={styles.emptyState}>
+                <Text style={styles.emptyText}>You haven't posted any rides yet.</Text>
+            </View>
+        </View>
+    );
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Find a Ride</Text>
-                <View style={styles.searchContainer}>
-                    <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Where to?"
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
+                <View style={styles.headerTop}>
+                    <Text style={styles.headerTitle}>
+                        {userMode === 'rider' ? 'Find a Ride' : 'Driver Dashboard'}
+                    </Text>
+                    <TouchableOpacity onPress={toggleUserMode} style={styles.modeToggle}>
+                        <Ionicons name="swap-horizontal" size={24} color={COLORS.primary} />
+                        <Text style={styles.modeToggleText}>Switch</Text>
+                    </TouchableOpacity>
                 </View>
+                {userMode === 'rider' && (
+                    <View style={styles.searchContainer}>
+                        <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Where to?"
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                        />
+                    </View>
+                )}
             </View>
 
-            <FlatList
-                data={rides}
-                renderItem={renderRideItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
-                ListEmptyComponent={
-                    <View style={styles.emptyState}>
-                        <Text style={styles.emptyText}>No rides found</Text>
-                    </View>
-                }
-            />
-
-            <TouchableOpacity
-                style={styles.fab}
-                onPress={() => navigation.navigate('PostRide')}
-            >
-                <Ionicons name="add" size={30} color={COLORS.white} />
-            </TouchableOpacity>
+            {userMode === 'rider' ? (
+                <>
+                    <FlatList
+                        data={rides}
+                        renderItem={renderRideItem}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.listContent}
+                        ListEmptyComponent={
+                            <View style={styles.emptyState}>
+                                <Text style={styles.emptyText}>No rides found</Text>
+                            </View>
+                        }
+                    />
+                    <TouchableOpacity
+                        style={styles.fab}
+                        onPress={() => navigation.navigate('PostRide')}
+                    >
+                        <Ionicons name="add" size={30} color={COLORS.white} />
+                    </TouchableOpacity>
+                </>
+            ) : (
+                renderDriverDashboard()
+            )}
         </SafeAreaView>
     );
 };
@@ -100,7 +139,26 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: 'bold',
         color: COLORS.primary,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 16,
+    },
+    modeToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.lightGray,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+    modeToggleText: {
+        marginLeft: 4,
+        color: COLORS.primary,
+        fontWeight: '600',
+        fontSize: 14,
     },
     searchContainer: {
         flexDirection: 'row',
@@ -233,6 +291,54 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 8,
+    },
+    driverDashboard: {
+        flex: 1,
+        padding: 20,
+    },
+    dashboardCard: {
+        backgroundColor: COLORS.white,
+        borderRadius: 20,
+        padding: 24,
+        alignItems: 'center',
+        marginBottom: 24,
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    dashboardTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: COLORS.text,
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    dashboardSubtitle: {
+        fontSize: 16,
+        color: COLORS.gray,
+        textAlign: 'center',
+        marginBottom: 24,
+    },
+    postRideButton: {
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 32,
+        paddingVertical: 16,
+        borderRadius: 12,
+        width: '100%',
+        alignItems: 'center',
+    },
+    postRideButtonText: {
+        color: COLORS.white,
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: COLORS.text,
+        marginBottom: 16,
     },
 });
 

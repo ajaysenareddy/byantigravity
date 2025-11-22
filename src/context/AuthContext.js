@@ -5,6 +5,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [userMode, setUserMode] = useState('rider'); // 'rider' or 'driver'
+
+  const toggleUserMode = () => {
+    setUserMode(prevMode => prevMode === 'rider' ? 'driver' : 'rider');
+  };
 
   const login = async (email, password) => {
     setIsLoading(true);
@@ -36,10 +41,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    setUserMode('rider'); // Reset to rider on logout
   };
 
+  const contextValue = { user, login, signup, logout, isLoading, userMode, toggleUserMode };
+  console.log('AuthContext Value:', Object.keys(contextValue));
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

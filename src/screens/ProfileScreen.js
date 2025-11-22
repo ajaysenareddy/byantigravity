@@ -5,7 +5,7 @@ import { COLORS } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProfileScreen = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, userMode, toggleUserMode } = useAuth();
 
     if (!user) return null;
 
@@ -17,9 +17,20 @@ const ProfileScreen = () => {
                 </View>
                 <Text style={styles.name}>{user.name}</Text>
                 <Text style={styles.email}>{user.email}</Text>
+                <View style={styles.modeBadge}>
+                    <Text style={styles.modeText}>{userMode === 'rider' ? 'Rider' : 'Driver'}</Text>
+                </View>
             </View>
 
             <View style={styles.menu}>
+                <TouchableOpacity style={styles.menuItem} onPress={toggleUserMode}>
+                    <Ionicons name="swap-horizontal-outline" size={24} color={COLORS.primary} />
+                    <Text style={styles.menuText}>
+                        Switch to {userMode === 'rider' ? 'Driver' : 'Rider'} Mode
+                    </Text>
+                    <Ionicons name="chevron-forward" size={24} color={COLORS.gray} />
+                </TouchableOpacity>
+
                 <TouchableOpacity style={styles.menuItem}>
                     <Ionicons name="person-outline" size={24} color={COLORS.text} />
                     <Text style={styles.menuText}>Edit Profile</Text>
@@ -101,6 +112,18 @@ const styles = StyleSheet.create({
     },
     logoutText: {
         color: COLORS.danger,
+    },
+    modeBadge: {
+        marginTop: 8,
+        backgroundColor: COLORS.lightGray,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    modeText: {
+        color: COLORS.primary,
+        fontWeight: '600',
+        fontSize: 14,
     },
 });
 
